@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameEngineTest {
@@ -30,7 +31,7 @@ public class GameEngineTest {
         engine.setTarget(50);
         GuessResult result = engine.makeGuess(30);
         assertFalse(result.isCorrect());
-        assertTrue(result.getMessage().contains("Too low!"));
+        assertTrue(result.getMessage().contains("Too low"));
     }
 
     @Test
@@ -38,7 +39,7 @@ public class GameEngineTest {
         engine.setTarget(50);
         GuessResult result = engine.makeGuess(70);
         assertFalse(result.isCorrect());
-        assertTrue(result.getMessage().contains("Too high!"));
+        assertTrue(result.getMessage().contains("Too high"));
     }
 
     @Test
@@ -66,6 +67,7 @@ public class GameEngineTest {
         assertEquals(100, engine.getMax());
     }
 
+    
     @Test
     public void testQuitWithNegativeNumber() {
         engine.setTarget(50);
@@ -73,6 +75,7 @@ public class GameEngineTest {
         assertFalse(result.isCorrect());
         assertTrue(engine.hasUserQuit());
         assertTrue(result.getMessage().contains("Exiting"));
+        assertEquals(0, engine.getAttempts()); // لا يزيد العداد عند الخروج
     }
 
     @Test
@@ -80,5 +83,77 @@ public class GameEngineTest {
         engine.setTarget(50);
         engine.makeGuess(-1);
         assertEquals(0, engine.getAttempts());
+    }
+
+    /* ===== Hints (feature3) ===== */
+    @Test
+    public void testHintVeryClose() {
+        engine.setTarget(50);
+        engine.makeGuess(60);
+        engine.makeGuess(60);
+        GuessResult result = engine.makeGuess(55);
+        assertTrue(result.getMessage().contains("HINT: You're very close!"));
+    }
+
+    @Test
+    public void testHintGettingWarmer() {
+        engine.setTarget(50);
+        for (int i = 0; i < 5; i++) {
+            engine.makeGuess(90);
+        }
+        GuessResult result = engine.makeGuess(65);
+        assertTrue(result.getMessage().contains("HINT: Getting warmer!"));
+    }
+
+    @Test
+    public void testNoHintWhenFarAway() {
+        engine.setTarget(50);
+        for (int i = 0; i < 5; i++) {
+            engine.makeGuess(90);
+        }
+        GuessResult result = engine.makeGuess(1);
+        assertFalse(result.getMessage().contains("HINT"));
+    }
+
+    @Test
+    public void testNoHintBeforeThreeAttempts() {
+        engine.setTarget(50);
+        GuessResult result = engine.makeGuess(55);
+        assertFalse(result.getMessage().contains("HINT"));
+    }
+
+    @Test
+    public void testHintsCanBeDisabled() {
+        engine.setTarget(50);
+        engine.setHintsEnabled(false);
+        for (int i = 0; i < 3; i++) {
+            engine.makeGuess(60);
+        }
+        GuessResult result = engine.makeGuess(55);
+        assertFalse(result.getMessage().contains("HINT"));
+    }
+
+    @Test
+    public void testHintsEnabledByDefault() {
+        assertTrue(engine.isHintsEnabled());
+    }
+
+    @Test
+    public void testSetHintsEnabled() {
+        engine.setHintsEnabled(false);
+        assertFalse(engine.isHintsEnabled());
+        engine.setHintsEnabled(true);
+        assertTrue(engine.isHintsEnabled());
+    }
+
+    @Test
+    public void testHintFieldAccessor() {
+        engine.setTarget(50);
+        for (int i = 0; i < 3; i++) {
+            engine.makeGuess(60);
+        }
+        GuessResult result = engine.makeGuess(55);
+       
+        assertTrue(result.getMessage().contains("HINT"));
     }
 }
