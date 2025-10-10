@@ -18,7 +18,7 @@ public class GameEngine {
     }
 
     public GuessResult makeGuess(int guess) {
-        // If game already ended, return state message
+        // If game already ended
         if (gameWon) {
             return new GuessResult(true, "Game already won.", attempts);
         }
@@ -35,24 +35,32 @@ public class GameEngine {
         // Count attempt
         attempts++;
 
-        // Check win / feedback
+        // Win
         if (guess == target) {
             gameWon = true;
             return new GuessResult(true, "Correct! You guessed it in " + attempts + " attempts.", attempts);
-        } else if (guess < target) {
-            // If this attempt reached the limit, set game over
-            if (attempts >= MAX_ATTEMPTS) {
-                gameOver = true;
-                return new GuessResult(false, "Too low! Game over.", attempts);
-            }
-            return new GuessResult(false, "Too low! Try a higher number.", attempts);
-        } else {
-            if (attempts >= MAX_ATTEMPTS) {
-                gameOver = true;
-                return new GuessResult(false, "Too high! Game over.", attempts);
-            }
-            return new GuessResult(false, "Too high! Try a lower number.", attempts);
         }
+
+        // Game over (after counting this attempt)
+        if (attempts >= MAX_ATTEMPTS) {
+            gameOver = true;
+            return new GuessResult(
+                    false,
+                    "Game Over! You've used all " + MAX_ATTEMPTS + " attempts. The number was " + target + ".",
+                    attempts
+            );
+        }
+
+        // Feedback + remaining attempts
+        int remaining = MAX_ATTEMPTS - attempts;
+        GuessResult result;
+        if (guess < target) {
+            result = new GuessResult(false, "Too low!", attempts);
+        } else {
+            result = new GuessResult(false, "Too high!", attempts);
+        }
+        result.setRemainingAttempts(remaining);
+        return result;
     }
 
     public void reset() {
