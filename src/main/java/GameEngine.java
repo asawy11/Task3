@@ -16,7 +16,7 @@ public class GameEngine {
     public GameEngine(int min, int max) {
         this.min = min;
         this.max = max;
-        this.hintsEnabled = true;
+        this.hintsEnabled = true; // hints enabled by default
         reset();
     }
 
@@ -29,7 +29,7 @@ public class GameEngine {
             return new GuessResult(false, "Game over! Maximum attempts reached.", attempts);
         }
 
-        // Quit (negative number)
+        // Quit (negative number) - MUST NOT increment attempts
         if (guess < 0) {
             userQuit = true;
             return new GuessResult(false, "Exiting game...", attempts);
@@ -107,6 +107,7 @@ public class GameEngine {
         return max;
     }
 
+    // ===== Hints API (REQUIRED by tests) =====
     public boolean isHintsEnabled() {
         return hintsEnabled;
     }
